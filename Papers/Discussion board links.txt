@@ -1,0 +1,7 @@
+Links:
+
+Example code:
+https://www.kaggle.com/samratp/guide-to-house-prices-regression-eda-and-model
+
+More example code, but with more description of why certain preprocessing steps are done:
+https://www.kaggle.com/janiobachmann/in-depth-analysis-house-prices-ensembling
