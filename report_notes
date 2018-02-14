@@ -1,0 +1,3 @@
+The data file contains a number of NA values. This is not missing data, but indicates that the house in question does not include the  relevant object or category. For example, the fireplace column indicates the type of fireplace, and is NA if the house does not contain a fireplace.
+Issue is that NA is registered as NaN and must therefore be edited, since a NA in the data is indeed an informative entry. Issue is that NA entries must be modified differently depending on the data type of the column (string/float). For string types, NA can be changed to "None", for float types, NA values have been changed to 0.
+
