@@ -12,3 +12,5 @@ df = pd.read_csv('train.csv')
 result=df.describe()
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     print(result)
+
+df.boxplot(column='SalePrice')
