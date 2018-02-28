@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibration, metrics, isotonic, preprocessing, naive_bayes, grid_search, model_selection
+from scipy import interpolate, stats
 
 def rmsle(y, h):
     # if not (h + 1).all() or not (y + 1).all():
@@ -20,19 +21,11 @@ X_float = X.select_dtypes(exclude=['object']).fillna(0)
 
 y = df['SalePrice']
 extra = pd.concat((y, X_float['date']), axis=1)
-hist = extra.groupby('date').mean().shift(1).fillna(200000).reset_index()
+mean_price = extra.groupby('date').mean()
+hist = mean_price.shift(1).fillna(200000).reset_index()
 hist.columns = ['date', 'hist_price']
-# X_float.merge()
-
-# min-max scaling
-# X_float -= X_float.mean()
-# X_float /= X_float.std()
-# X_float = pd.merge(X, hist, on=['date'])
-
-X_one_hot = pd.get_dummies(X.select_dtypes(include=['object']).fillna('None'))
-
-hist.columns = ['date', 'hist_price']
-# X_float.merge()
+print(stats.spearmanr(mean_price.values, hist['hist_price']))
+X_float = X_float.reset_index().merge(hist, on=['date']).set_index('index')
 
 # normalizing
 X_float -= X_float.mean()
@@ -67,6 +60,6 @@ for train, test in model_selection.KFold(10).split(X, y):
 
 # scores = model_selection.cross_validate(model, X.values, y.values, scoring=scorer, cv=5)
 # print(model.coef_)
-print(scores)
+print(np.mean(scores))
 # print(len(df))
 # print(df.isnull().sum())
