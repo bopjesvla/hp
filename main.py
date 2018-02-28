@@ -20,6 +20,16 @@ y = df['SalePrice']
 extra = pd.concat((y, date), axis=1)
 hist = extra.groupby('date').mean().shift(1).fillna(200000).reset_index()
 
+hist.columns = ['date', 'hist_price']
+# X_float.merge()
+
+# normalizing
+X_float -= X_float.mean()
+X_float /= X_float.std()
+# X_float = pd.merge(X, hist, on=['date'])
+
+X_one_hot = pd.get_dummies(X.select_dtypes(include=['object']).fillna('None'))
+
 # print(X_float[Xfloat.isnull().any(axis=1)])
 # print(Xstr.columns)
 X = pd.concat((X_float, X_one_hot), axis=1)
