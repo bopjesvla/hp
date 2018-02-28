@@ -46,11 +46,17 @@ one_hot = pd.get_dummies(df)
 #     if len(one_hot[one_hot[c].isnull()]) > 0:
 #         print()
 
-for train, test in model_selection.train_test_split(X, y):
-    X_train, X_test, y_train, y_test = X.iloc[train], X.iloc[test], y.iloc[train], y.iloc[test]
+scores = []
 
-model = linear_model.LinearRegression(normalize=False)
-scores = model_selection.cross_validate(model, X.values, y.values, scoring=scorer, cv=5)
+for train, test in model_selection.KFold(10).split(X, y):
+    X_train, X_test, y_train, y_test = X.iloc[train], X.iloc[test], y.iloc[train], y.iloc[test]
+    model = linear_model.LinearRegression(normalize=False)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    score = rmsle(y_test, y_pred)
+    scores.append(score)
+
+# scores = model_selection.cross_validate(model, X.values, y.values, scoring=scorer, cv=5)
 # print(model.coef_)
 print(scores)
 # print(len(df))
