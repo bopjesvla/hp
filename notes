@@ -1,0 +1,9 @@
+Predicted price cannot be below 0, otherwise the RMSLE function will return a NaN value (an imaginary number),
+because the log of a negative value does not exist. 
+
+There are only 7 houses with a swimming pool area. This variable does not seem to influence the prices much.
+
+Prices of the previous month may correlate with the current prices. If so, we can add them as an predictor. 
+
+m feb 2010 | m mar 2010
+m mar 2010 | m april 2010
