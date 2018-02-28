@@ -3,8 +3,6 @@ import numpy as np
 from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibration, metrics, isotonic, preprocessing, naive_bayes, grid_search, model_selection
 
 def rmsle(y, h):
-    # for i in h:
-    #     print(np.log(i))
     # if not (h + 1).all() or not (y + 1).all():
     #     raise 'nope'
     score = np.sqrt(np.square(np.log(h + 1.) - np.log(y + 1.)).mean())
@@ -53,6 +51,7 @@ for train, test in model_selection.KFold(10).split(X, y):
     model = linear_model.LinearRegression(normalize=False)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
+    y_pred = np.maximum(y_pred, 0)
     score = rmsle(y_test, y_pred)
     scores.append(score)
 
