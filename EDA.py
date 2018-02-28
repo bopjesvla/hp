@@ -7,10 +7,31 @@ Created on Wed Feb 21 11:28:30 2018
 import pandas as pd
 import numpy as np
 from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibration, metrics, isotonic, preprocessing, naive_bayes, grid_search
+import matplotlib.pyplot as plt
 
 df = pd.read_csv('train.csv')
 result=df.describe()
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     print(result)
 
-df.boxplot(column='SalePrice')
+#df.boxplot(column='SalePrice')
+corrs=df.corr(method='pearson')
+print(df.dtypes)
+nonCont=[key for key in dict(df.dtypes) if dict(df.dtypes)[key] in ['float64','object']]
+print(nonCont)
+#print(corrs['SalePrice'])
+var = df['PoolArea']
+salePrice=df['SalePrice']
+#varSale=[]
+#nonVarSale=[]
+#for index in range(0,len(salePrice)):
+#    if var[index]!=0:
+#        varSale.append(salePrice[index])
+#    else:
+#        nonVarSale.append(salePrice[index])
+#dfPoolSale=pd.DataFrame(poolSale)
+#dfNonPoolSale=pd.DataFrame(nonPoolSale)
+#plt.boxplot([varSale,nonVarSale])
+#plotVar=df['OverallQual']
+#df.plot(x='OverallQual',y='SalePrice', kind='scatter')
+df.plot(x='Alley',y='SalePrice',kind='box',subplots='True')

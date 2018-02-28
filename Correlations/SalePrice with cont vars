@@ -1,0 +1,40 @@
+Correlations
+
+Id              -0.021917 -
+MSSubClass      -0.084284 -
+LotFrontage      0.351799 +
+LotArea          0.263843 +
+OverallQual      0.790982 +++
+OverallCond     -0.077856 -
+YearBuilt        0.522897 +++
+YearRemodAdd     0.507101 +++
+MasVnrArea       0.477493 +
+BsmtFinSF1       0.386420 +
+BsmtFinSF2      -0.011378 -
+BsmtUnfSF        0.214479 +
+TotalBsmtSF      0.613581 +++
+1stFlrSF         0.605852 +++
+2ndFlrSF         0.319334 +
+LowQualFinSF    -0.025606 -
+GrLivArea        0.708624 +++
+BsmtFullBath     0.227122 +
+BsmtHalfBath    -0.016844 -
+FullBath         0.560664 +++
+HalfBath         0.284108 +
+BedroomAbvGr     0.168213 +
+KitchenAbvGr    -0.135907 +
+TotRmsAbvGrd     0.533723 +++
+Fireplaces       0.466929 +
+GarageYrBlt      0.486362 +
+GarageCars       0.640409 +++
+GarageArea       0.623431 +++
+WoodDeckSF       0.324413 +
+OpenPorchSF      0.315856 +
+EnclosedPorch   -0.128578 +
+3SsnPorch        0.044584 -
+ScreenPorch      0.111447 +
+PoolArea         0.092404 -
+MiscVal         -0.021190 -
+MoSold           0.046432 -
+YrSold          -0.028923 -
+
