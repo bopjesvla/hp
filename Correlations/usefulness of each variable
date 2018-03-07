@@ -1,0 +1,89 @@
+How good is the variable for predicting? 
+MiscVal=worthless, remove
+3SSnProch= worthless, remove
+GarageQual=Useful
+FirePlaceQu=Useful
+BedroomAbvGr=Useful
+LowQualFinSF=worthless,remove
+Heating=useful
+BsmtFinType1= Little difference over classes, but still some
+ExterQual=Useful
+RoofStyle=Little difference over classes, but still some. Seems to indicate outliers.
+BldgType= Little difference over classes, but still some. Seems to indicate outliers
+Utilities=Absolutely worthless, only one subject differs from rest! REMOVE REMOVE!
+LotFrontage=little difference, but still some.
+Fence= very little difference over classes. Can perhaps be removed.
+miscFeature=Useful
+EnclosedPorch=very little difference. Can perhaps be removed.
+GarageArea=Useful
+Fireplaces=little difference, but still some
+HalfBath= little difference, but still some
+2ndFlrSf= Seems useful
+TotalBsmtSf=useful
+BsmtExposure=little difference over classes, can perhaps be removed
+MasVnrArea=very little difference, can perhaps be removed.
+YearRemodAdd=Useful
+Condition2=Useful
+LotArea=seems useful
+BsmtFinSF1=seems useful
+ExterCond=little difference over classes, but still some
+LotConfig=very little difference over classes, can perhaps be removed
+HouseStyle=Useful
+GarageCars=Useful
+Functional=Little difference over clsses, but still some
+FullBath=Useful
+1stFlrSf=useful
+BsmtUnfSf=very little difference, can perhaps be removed
+BsmtCond=useful
+MasVnrType=little difference, but still some
+YearBuilt=Useful
+Condition1=Useful
+Alley=useful
+MSZoning=useful
+id=very little difference, can perhaps be removed
+GarageYrBlt=useful
+TotRmsAbvGrd=useful
+BsmtFullBath=very little difference, can perhaps be removed
+Electrical= useful
+BsmtFinType2=little difference, but still some
+BsmtQual=useful
+Exterior1st=useful
+OverallCond=useful
+Landslope=very little difference, can perhaps be removed
+Street= little difference, but still some
+MSSubClass=useful
+WoodDeckSF=very little difference, can perhaps be removed
+BsmtHalfBath=little difference, but still some
+CentralAir=useful
+Foundation=useful
+Exterior2nd=useful
+OverallQual=useful
+Neighborhood=useful
+LandContour=little difference, but still some
+KitchenQual=useful
+GarageFinish=little difference, but still some
+PavedDrive=little difference, but still some
+OpenPorchSF=little difference, can perhaps be removed
+LotShape=little difference, can perhaps be removed
+PoolQC=useful? (many of them Nan)
+RoofMatl=Useful
+YrSold=very little difference, can perhaps be removed
+SaleCondition=useful
+BsmtFinSF2=very little difference, can perhaps be removed
+HeatingQC=useful
+GrLivArea=very useful
+KitchenAbvGr=little spread, perhaps better removed
+GarageType=useful
+GarageCond=litle difference, but still some
+ScreenPorch=little difference, but still some
+moSold=little difference, but still some
+poolArea=very little spread, probably better removed
+SaleType=useful
+
+Variables that clearly need removal:
+MiscVal, 3SSnProch, lowQualFinSF, utilities
+
+Variables that might need to be removed:
+Fence,EnclosedPorch,BsmtExposure,MasVnrArea,LotConfig,BsmtUnfSf,id,
+BsmtFullBath,Landslope,WoodDeckSF,OpenPorchSF,LotShape,YrSold,BsmtFinSF2,
+KitchenAbvGr,poolArea
