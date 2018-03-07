@@ -1,0 +1,32 @@
+#basic settings for the display
+title = The Adventure of Heiu Hitera
+frame_rate = 120
+display_width = 1916
+display_height = 640
+
+#size of the display of the game
+dungeon_width = 800
+dungeon_height = 640
+
+#location of the display of the network
+network_x = 800
+network_y = 0
+node_size = 24
+
+#default game settings
+sim_frames = 1800
+game_FPS = 1000
+max_moment = 6
+d_moment = 0.33
+x_speed = 2
+y_speed = 2
+
+#genomes
+bias_idx = 0
+input_min_idx = 1
+input_max_idx = 290
+hidden_min_idx = 291
+hidden_max_idx = 390
+output_min_idx = 391
+output_max_idx = 391
+function = RELU
