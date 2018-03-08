@@ -85,7 +85,7 @@ for k in range(K):
 	for i in range(E):
 		(seq,c_fit) = OnePlusOne(seq,1/n,model,X_train,y_train,c_fit)
 		model.fit(X_train[[X.columns[i] for i in range(n) if seq[i]]], y_train  )
-		y_pred = model.predict(X_test)
+		y_pred = model.predict(X_test[X.columns[seq]])
 		performance = rmsle(y_test,y_pred)
 
 #		performance = trainModel(model, X_test[[X.columns[i] for i in range(n) if seq[i]]],y_test)
