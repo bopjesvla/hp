@@ -34,4 +34,18 @@ salePrice=df['SalePrice']
 #plt.boxplot([varSale,nonVarSale])
 #plotVar=df['OverallQual']
 #df.plot(x='OverallQual',y='SalePrice', kind='scatter')
-df.plot(x='Alley',y='SalePrice',kind='box',subplots='True')
+#df.plot(x='Alley',y='SalePrice',kind='box',subplots='True')
+
+
+cols_to_use = ['SalePrice'] # or [0,1,2,3]
+salePrice = pd.read_csv('train.csv', usecols= cols_to_use)
+variables = pd.read_csv('train.csv')
+variables = variables.drop(labels='SalePrice', axis=1)
+for column in variables:
+    if df[column].dtype=='int64' or df[column].dtype=='float64':
+        df.plot(x=column,y='SalePrice',kind='scatter',subplots='True')
+    else:
+        df.fillna('missing')
+        df.boxplot(['SalePrice'], column)
+
+    
