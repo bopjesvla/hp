@@ -20,8 +20,9 @@ print(df.dtypes)
 nonCont=[key for key in dict(df.dtypes) if dict(df.dtypes)[key] in ['float64','object']]
 print(nonCont)
 #print(corrs['SalePrice'])
-var = df['PoolArea']
+var = df['Neighborhood']
 salePrice=df['SalePrice']
+print var
 #varSale=[]
 #nonVarSale=[]
 #for index in range(0,len(salePrice)):
@@ -34,18 +35,21 @@ salePrice=df['SalePrice']
 #plt.boxplot([varSale,nonVarSale])
 #plotVar=df['OverallQual']
 #df.plot(x='OverallQual',y='SalePrice', kind='scatter')
-#df.plot(x='Alley',y='SalePrice',kind='box',subplots='True')
+#df.plot(x='Neighborhood',y='SalePrice',kind='box',subplots='True')
+#df.boxplot(['SalePrice'], 'Neighborhood')
+#
+#unique, counts = np.unique(df['Neighborhood'], return_counts=True)
+#print  np.asarray((unique, counts)).T
 
-
-cols_to_use = ['SalePrice'] # or [0,1,2,3]
-salePrice = pd.read_csv('train.csv', usecols= cols_to_use)
-variables = pd.read_csv('train.csv')
-variables = variables.drop(labels='SalePrice', axis=1)
-for column in variables:
-    if df[column].dtype=='int64' or df[column].dtype=='float64':
-        df.plot(x=column,y='SalePrice',kind='scatter',subplots='True')
-    else:
-        df.fillna('missing')
-        df.boxplot(['SalePrice'], column)
+#cols_to_use = ['SalePrice'] # or [0,1,2,3]
+#salePrice = pd.read_csv('train.csv', usecols= cols_to_use)
+#variables = pd.read_csv('train.csv')
+#variables = variables.drop(labels='SalePrice', axis=1)
+#for column in variables:
+#    if df[column].dtype=='int64' or df[column].dtype=='float64':
+#        df.plot(x=column,y='SalePrice',kind='scatter',subplots='True')
+#    else:
+#        df.fillna('missing')
+#        df.boxplot(['SalePrice'], column)
 
     
