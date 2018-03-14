@@ -16,9 +16,6 @@ def rmsle(y, y_pred):
 scorer = metrics.make_scorer(rmsle)
 
 df = pd.read_csv('train.csv')
-# hood_price = df.groupby('Neighborhood')['SalePrice'].mean().reset_index()
-# hood_price.columns = ['Neighborhood', 'hood_price']
-# df = df.merge(hood_price, on=['Neighborhood'])
 
 # date as unix timestamp
 date = pd.to_datetime({'year': df['YrSold'], 'month': df['MoSold'], 'day': 1}).astype(int).rename('date')
@@ -37,7 +34,7 @@ y = df['SalePrice']
 # normalizing
 # X_float = pd.merge(X, hist, on=['date'])
 
-X_cat = X.select_dtypes(include=['object']).fillna('None')
+X_cat = pd.concat((X.select_dtypes(include=['object']).fillna('None'), y), axis=1)
 # is_ordinal = 
 
 X_one_hot = pd.get_dummies(X_cat)
@@ -75,8 +72,18 @@ E     = 100
 perf_hist = np.zeros((E,K))
 k = 0
 
-for train, test in model_selection.KFold(K).split(X, y):
+for train, test in model_selection.KFold(K, shuffle=True).split(X, y):
     X_train, X_test, y_train, y_test = X.iloc[train], X.iloc[test], y.iloc[train], y.iloc[test]
+
+    X_cat_train, X_cat_test = X_cat.iloc[train], X_cat.iloc[test]
+    hood_price = X_cat_train.groupby('Neighborhood')['SalePrice'].mean().reset_index()
+    hood_price.columns = ['Neighborhood', 'hood_price']
+    # print(X_cat['Neighborhood'].value_counts())
+    merged_train = X_cat_train.reset_index().merge(hood_price,  how='left', on=['Neighborhood']).set_index('index')['hood_price']
+    X_train = pd.concat((X_train, merged_train), axis=1)
+    merged_test = X_cat_test.reset_index().merge(hood_price, how='left',  on=['Neighborhood']).set_index('index')['hood_price']
+    X_test = pd.concat((X_test, merged_test), axis=1)
+
     performance = 0
     n = len(X_train.columns)
     # seq = [random.randint(0,1) for b in X_train.columns]
