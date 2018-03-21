@@ -1,8 +1,10 @@
 # TODO: convert many categorical variables to mean price per category if large difference
 
 import pandas as pd
+import autograd
+# import xgboost
 import random
-import numpy as np
+import autograd.numpy as np
 from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibration, metrics, isotonic, preprocessing, naive_bayes, grid_search, model_selection
 from scipy import interpolate, stats
 
@@ -14,13 +16,17 @@ def rmsle(y, y_pred):
     score = np.sqrt(np.square(np.log(y_pred + 1.) - np.log(y + 1.)).mean())
     return score
 
+rmsle_grad = autograd.grad(rmsle)
+print(rmsle_grad(np.array([1]), np.array([2])))
+
 scorer = metrics.make_scorer(rmsle)
 
 df = pd.read_csv('train.csv')
 
 # date as unix timestamp
 date = pd.to_datetime({'year': df['YrSold'], 'month': df['MoSold'], 'day': 1}).astype(int).rename('date')
-df = df.assign(date=date).drop(['YrSold', 'Id'], 1)
+df = df.assign(date=date).drop(['YrSold', 'Id', 'MiscVal', '3SsnPorch', 'LowQualFinSF', 'Utilities'], 1)
+df = df.drop(['EnclosedPorch', 'BsmtExposure', 'MasVnrArea', 'OpenPorchSF', 'LotShape', 'BsmtFinSF2', 'PoolArea'], 1)
 X = df[[c for c in df.columns if c != 'SalePrice']]
 X_float = X.select_dtypes(exclude=['object']).fillna(0)
 
@@ -112,7 +118,8 @@ for train, test in model_selection.KFold(K, shuffle=True).split(X, y):
 #         print( 'Fold: ' + str(k) + ' Epoch: ' + str(i) + ' Train perf: ' + str(c_fit) + ' Test perf: ' + str(performance) + "%                 ", end='\r')
 #     print('Fold: ' + str(k) + ' Performance: ' + str(performance) )
 
-    model = linear_model.Ridge(250)
+    # model = linear_model.Ridge(250)
+    model = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=5)
     # model = linear_model.LinearRegression()
     # model.fit(X_train[X.columns[seq]], y_train)
     y_train_log = np.log(y_train)
@@ -125,6 +132,8 @@ for train, test in model_selection.KFold(K, shuffle=True).split(X, y):
     y_pred = np.minimum(755000, y_pred)
     score = rmsle(y_test, y_pred)
     scores.append(score)
+
+    # print(model.feature_importances_)
 
     k += 1
 
