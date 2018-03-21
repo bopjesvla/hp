@@ -7,6 +7,7 @@ from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibr
 from scipy import interpolate, stats
 
 def rmsle(y, y_pred):
+    # y_pred = np.minimum(710, y_pred)
     y_pred = np.maximum(0, y_pred)
     # if not (h + 1).all() or not (y + 1).all():
     #     raise 'nope'
@@ -76,12 +77,14 @@ for train, test in model_selection.KFold(K, shuffle=True).split(X, y):
     X_train, X_test, y_train, y_test = X.iloc[train], X.iloc[test], y.iloc[train], y.iloc[test]
 
     X_cat_train, X_cat_test = X_cat.iloc[train], X_cat.iloc[test]
-    hood_price = X_cat_train.groupby('Neighborhood')['SalePrice'].mean().reset_index()
-    hood_price.columns = ['Neighborhood', 'hood_price']
-    # print(X_cat['Neighborhood'].value_counts())
-    merged_train = X_cat_train.reset_index().merge(hood_price,  how='left', on=['Neighborhood']).set_index('index')['hood_price']
+
+    # for c in X_cat.columns:
+    c = 'Neighborhood'
+    hood_price = X_cat_train.groupby(c)['SalePrice'].mean().reset_index()
+    hood_price.columns = [c, c + '_mean_price']
+    merged_train = X_cat_train.reset_index().merge(hood_price,  how='left', on=[c]).set_index('index')[c + '_mean_price']
     X_train = pd.concat((X_train, merged_train), axis=1)
-    merged_test = X_cat_test.reset_index().merge(hood_price, how='left',  on=['Neighborhood']).set_index('index')['hood_price']
+    merged_test = X_cat_test.reset_index().merge(hood_price, how='left',  on=[c]).set_index('index')[c + '_mean_price']
     X_test = pd.concat((X_test, merged_test), axis=1)
 
     performance = 0
@@ -106,14 +109,17 @@ for train, test in model_selection.KFold(K, shuffle=True).split(X, y):
 #         print( 'Fold: ' + str(k) + ' Epoch: ' + str(i) + ' Train perf: ' + str(c_fit) + ' Test perf: ' + str(performance) + "%                 ", end='\r')
 #     print('Fold: ' + str(k) + ' Performance: ' + str(performance) )
 
-    model = linear_model.Ridge(1000)
+    model = linear_model.Ridge(250)
     # model = linear_model.LinearRegression()
     # model.fit(X_train[X.columns[seq]], y_train)
-    model.fit(X_train, y_train)
+    y_train_log = np.log(y_train)
+    model.fit(X_train, y_train_log)
 
     # y_pred = model.predict(X_test[X.columns[seq]])
     y_pred = model.predict(X_test)
     y_pred = np.maximum(y_pred, 0)
+    y_pred = np.exp(y_pred)
+    y_pred = np.minimum(100000000, y_pred)
     score = rmsle(y_test, y_pred)
     scores.append(score)
 
