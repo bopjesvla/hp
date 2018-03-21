@@ -7,7 +7,10 @@ Created on Wed Feb 21 11:28:30 2018
 import pandas as pd
 import numpy as np
 from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibration, metrics, isotonic, preprocessing, naive_bayes, grid_search
+from sklearn import tree
+from sklearn import preprocessing
 import matplotlib.pyplot as plt
+import graphviz 
 
 df = pd.read_csv('train.csv')
 result=df.describe()
@@ -20,9 +23,9 @@ print(df.dtypes)
 nonCont=[key for key in dict(df.dtypes) if dict(df.dtypes)[key] in ['float64','object']]
 print(nonCont)
 #print(corrs['SalePrice'])
-var = df['Neighborhood']
+#var = df['Neighborhood']
 salePrice=df['SalePrice']
-print var
+
 #varSale=[]
 #nonVarSale=[]
 #for index in range(0,len(salePrice)):
@@ -41,7 +44,7 @@ print var
 #unique, counts = np.unique(df['Neighborhood'], return_counts=True)
 #print  np.asarray((unique, counts)).T
 
-#cols_to_use = ['SalePrice'] # or [0,1,2,3]
+#cols_to_use = ['SalePrice']
 #salePrice = pd.read_csv('train.csv', usecols= cols_to_use)
 #variables = pd.read_csv('train.csv')
 #variables = variables.drop(labels='SalePrice', axis=1)
@@ -52,4 +55,20 @@ print var
 #        df.fillna('missing')
 #        df.boxplot(['SalePrice'], column)
 
-    
+variables = pd.read_csv('train.csv')
+variables = variables.drop(labels='SalePrice', axis=1)
+for column in variables:
+    variables=variables.fillna(0)
+    if not (variables[column].dtype=='int64' or variables[column].dtype=='float64'):
+        le = preprocessing.LabelEncoder()
+        le.fit(variables[column])
+        variables[column]=le.transform(variables[column])
+clf = tree.DecisionTreeClassifier()
+clf = clf.fit(variables, salePrice)
+dot_data = tree.export_graphviz(clf, #out_file=None, 
+                         feature_names=variables.columns.tolist(),  
+                         #class_names=[""],  
+                         filled=True, rounded=True  ,
+                         special_characters=True)  
+graph = graphviz.Source(dot_data)  
+print graph
