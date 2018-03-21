@@ -77,15 +77,18 @@ for train, test in model_selection.KFold(K, shuffle=True).split(X, y):
     X_train, X_test, y_train, y_test = X.iloc[train], X.iloc[test], y.iloc[train], y.iloc[test]
 
     X_cat_train, X_cat_test = X_cat.iloc[train], X_cat.iloc[test]
+    sale_price_mean = X_cat_train['SalePrice'].mean()
 
-    # for c in X_cat.columns:
-    c = 'Neighborhood'
-    hood_price = X_cat_train.groupby(c)['SalePrice'].mean().reset_index()
-    hood_price.columns = [c, c + '_mean_price']
-    merged_train = X_cat_train.reset_index().merge(hood_price,  how='left', on=[c]).set_index('index')[c + '_mean_price']
-    X_train = pd.concat((X_train, merged_train), axis=1)
-    merged_test = X_cat_test.reset_index().merge(hood_price, how='left',  on=[c]).set_index('index')[c + '_mean_price']
-    X_test = pd.concat((X_test, merged_test), axis=1)
+    for c in X_cat.columns:
+        if c == 'SalePrice':
+            continue
+        # c = 'Neighborhood'
+        hood_price = X_cat_train.groupby(c)['SalePrice'].mean().reset_index()
+        hood_price.columns = [c, c + '_mean_price']
+        merged_train = X_cat_train.reset_index().merge(hood_price,  how='left', on=[c]).set_index('index')[c + '_mean_price']
+        X_train = pd.concat((X_train, merged_train), axis=1)
+        merged_test = X_cat_test.reset_index().merge(hood_price, how='left',  on=[c]).set_index('index')[c + '_mean_price'].fillna(sale_price_mean)
+        X_test = pd.concat((X_test, merged_test), axis=1)
 
     performance = 0
     n = len(X_train.columns)
@@ -119,7 +122,7 @@ for train, test in model_selection.KFold(K, shuffle=True).split(X, y):
     y_pred = model.predict(X_test)
     y_pred = np.maximum(y_pred, 0)
     y_pred = np.exp(y_pred)
-    y_pred = np.minimum(100000000, y_pred)
+    y_pred = np.minimum(755000, y_pred)
     score = rmsle(y_test, y_pred)
     scores.append(score)
 
