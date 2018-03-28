@@ -1,0 +1,5 @@
+Interaction effects found:
+BsmtFinSF1 and OverallQuality interact.
+GarageArea and TotalBsmtSF interact
+GarageYrBlt and FullBath interact.
+None of them with a large degree, however.

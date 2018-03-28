@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Feb 21 11:28:30 2018
-
 @author: rbisschops
 """
 import pandas as pd
@@ -9,8 +8,13 @@ import numpy as np
 from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibration, metrics, isotonic, preprocessing, naive_bayes, grid_search
 from sklearn import tree
 from sklearn import preprocessing
+from sklearn.externals.six import StringIO
 import matplotlib.pyplot as plt
-import graphviz 
+import graphviz
+import pydotplus
+from IPython.display import Image
+from os import system
+#import StringIO
 
 df = pd.read_csv('train.csv')
 result=df.describe()
@@ -57,18 +61,19 @@ salePrice=df['SalePrice']
 
 variables = pd.read_csv('train.csv')
 variables = variables.drop(labels='SalePrice', axis=1)
+variables=variables.drop(labels="Id",axis=1)
 for column in variables:
     variables=variables.fillna(0)
     if not (variables[column].dtype=='int64' or variables[column].dtype=='float64'):
         le = preprocessing.LabelEncoder()
         le.fit(variables[column])
         variables[column]=le.transform(variables[column])
-clf = tree.DecisionTreeClassifier()
+clf = tree.DecisionTreeClassifier(max_depth=5)
 clf = clf.fit(variables, salePrice)
-dot_data = tree.export_graphviz(clf, #out_file=None, 
+draw = tree.export_graphviz(clf, out_file=None, 
                          feature_names=variables.columns.tolist(),  
                          #class_names=[""],  
                          filled=True, rounded=True  ,
-                         special_characters=True)  
-graph = graphviz.Source(dot_data)  
-print graph
+                         special_characters=True)
+graph = graphviz.Source(draw)
+graph.render("tree") 
