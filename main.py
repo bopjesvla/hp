@@ -3,6 +3,8 @@
 import pandas as pd
 # import xgboost
 import numpy as np
+from sklearn.tree import DecisionTreeRegressor as DTR
+from sklearn.neighbors import KNeighborsRegressor as KNR
 from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibration, metrics, isotonic, preprocessing, naive_bayes, grid_search, model_selection
 #%%
 def preprocess():
@@ -22,9 +24,32 @@ def preprocess():
     X /= X.std()
     
     return X, X_cat, y
+#%% 
+X, X_cat, y = preprocess()
+
 #%%
-def train_some_model(X, X_cat, y):
-    scores = []
+def get_score(model, split):
+    
+    X_train = split[0] 
+    y_train = split[1] 
+    X_test = split[2]
+    y_test = split[3]
+    
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    y_pred = np.maximum(y_pred, 1e-20)
+    y_pred = np.minimum(755000, y_pred)
+    
+    score = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
+    return score
+#%%
+def train_some_model(X, X_cat, y, model='linear', params=None):
+    ada_scores = []
+    ridge_scores = []
+    gbr_scores = []
+    linear_scores = []
+    knn_scores= []
+    
     k = 0
     
     K = 10
@@ -44,30 +69,46 @@ def train_some_model(X, X_cat, y):
             merged_test = X_cat_test.reset_index().merge(hood_price, how='left',  on=[c]).set_index('index')[c + '_mean_price'].fillna(sale_price_mean)
             X_test = pd.concat((X_test, merged_test), axis=1)
 
-    
-        # model = linear_model.Ridge(250)
-        model = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=5)
-        # model = linear_model.LinearRegression()
-        
         y_train = np.log(y_train)
         y_test = np.log(y_test)
-        model.fit(X_train, y_train)
-    
-        y_pred = model.predict(X_test)
-        y_pred = np.maximum(y_pred, 1e-20)
-        y_pred = np.minimum(755000, y_pred)
-        score = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
-        scores.append(score)
+        
+        split = (X_train, y_train, X_test, y_test)
+        
+        dtr = DTR(criterion='mse', max_depth=None)
+        ada = ensemble.AdaBoostRegressor(base_estimator=dtr, n_estimators=100, learning_rate=1.0, loss='exponential')
+        score = get_score(ada, split)
+        ada_scores.append(score)
+        
+        ridge = linear_model.Ridge(250)
+        score = get_score(ridge, split)
+        ridge_scores.append(score)
+        
+        gbr = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=5)
+        score = get_score(gbr, split)
+        gbr_scores.append(score)
+        
+        linear = linear_model.LinearRegression()
+        score = get_score(linear, split)
+        linear_scores.append(score)
+        
+#        is bad: 
+#        knn = KNR(n_neighbors=10)
+#        score = get_score(knn, split)
+#        knn_scores.append(score)
+        
 #        print(dict(zip(X_train.columns, model.feature_importances_)))
-        print(X_train.columns[np.argpartition(model.feature_importances_, -4)[-4:]])
-        print(model.feature_importances_[np.argpartition(model.feature_importances_, -4)[-4:]])
+#        print(X_train.columns[np.argpartition(model.feature_importances_, -4)[-4:]])
+#        print(model.feature_importances_[np.argpartition(model.feature_importances_, -4)[-4:]])
     
         # print(model.feature_importances_)
     
         k += 1
-        
+    scores = [ada_scores, ridge_scores, gbr_scores, linear_scores, knn_scores]    
     return scores, k
-#%% 
-X, X_cat, y = preprocess()
+#%%
 scores, k = train_some_model(X, X_cat, y)
-print(np.mean(scores))
+print('ada', np.mean(scores[0]))
+print('ridge', np.mean(scores[1]))
+print('gbr', np.mean(scores[2]))
+print('linear', np.mean(scores[3]))
+#print('knn', np.mean(scores[4]))
