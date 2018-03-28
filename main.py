@@ -26,7 +26,8 @@ def preprocess():
 def train_some_model(X, X_cat, y):
     scores = []
     k = 0
-
+    
+    K = 10
     for train, test in model_selection.KFold(K, shuffle=True).split(X, y):
         X_train, X_test, y_train, y_test = X.iloc[train], X.iloc[test], y.iloc[train], y.iloc[test]
     
