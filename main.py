@@ -3,7 +3,7 @@
 import pandas as pd
 # import xgboost
 import numpy as np
-from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibration, metrics, isotonic, preprocessing, naive_bayes, grid_search, model_selection
+from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibration, metrics, isotonic, preprocessing, naive_bayes, grid_search, model_selection, neighbors
 #%%
 def preprocess():
 
@@ -44,23 +44,38 @@ def train_some_model(X, X_cat, y):
             merged_test = X_cat_test.reset_index().merge(hood_price, how='left',  on=[c]).set_index('index')[c + '_mean_price'].fillna(sale_price_mean)
             X_test = pd.concat((X_test, merged_test), axis=1)
 
-    
-        # model = linear_model.Ridge(250)
-        model = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=5)
-        # model = linear_model.LinearRegression()
-        
         y_train = np.log(y_train)
         y_test = np.log(y_test)
-        model.fit(X_train, y_train)
-    
-        y_pred = model.predict(X_test)
+
+        model1 = linear_model.Ridge(250)
+        model2 = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=5)
+        model3 = neighbors.KNeighborsRegressor(n_neighbors=10)
+
+        train_preds = []
+        test_preds= []
+
+        for m in [model1, model2, model3]:
+            m.fit(X_train, y_train)
+            train_pred = m.predict(X_train)
+            train_pred = np.maximum(train_pred, 1e-20)
+            train_pred = np.minimum(755000, train_pred)
+            test_pred = m.predict(X_test)
+            test_pred = np.maximum(test_pred, 1e-20)
+            test_pred = np.minimum(755000, test_pred)
+            train_preds.append(train_pred)
+            test_preds.append(test_pred)
+
+        model = linear_model.LinearRegression()
+        model.fit(np.array(train_preds).T, y_train)
+
+        y_pred = model.predict(np.array(test_preds).T)
         y_pred = np.maximum(y_pred, 1e-20)
         y_pred = np.minimum(755000, y_pred)
         score = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
         scores.append(score)
 #        print(dict(zip(X_train.columns, model.feature_importances_)))
-        print(X_train.columns[np.argpartition(model.feature_importances_, -4)[-4:]])
-        print(model.feature_importances_[np.argpartition(model.feature_importances_, -4)[-4:]])
+        # print(X_train.columns[np.argpartition(model.feature_importances_, -4)[-4:]])
+        # print(model.feature_importances_[np.argpartition(model.feature_importances_, -4)[-4:]])
     
         # print(model.feature_importances_)
     
