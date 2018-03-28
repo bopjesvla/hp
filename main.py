@@ -13,7 +13,7 @@ def rmsle(y, y_pred):
     y_pred = np.maximum(0, y_pred)
     # if not (h + 1).all() or not (y + 1).all():
     #     raise 'nope'
-    score = np.sqrt(np.square(np.log(y_pred + 1.) - np.log(y + 1.)).mean())
+    score = np.sqrt(np.square(np.log(y_pred) - np.log(y)).mean())
     return score
 
 rmsle_grad = autograd.grad(rmsle)
@@ -122,16 +122,19 @@ for train, test in model_selection.KFold(K, shuffle=True).split(X, y):
     model = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=5)
     # model = linear_model.LinearRegression()
     # model.fit(X_train[X.columns[seq]], y_train)
-    y_train_log = np.log(y_train)
-    model.fit(X_train, y_train_log)
+    y_train = np.log(y_train)
+    y_test = np.log(y_test)
+    model.fit(X_train, y_train)
 
     # y_pred = model.predict(X_test[X.columns[seq]])
     y_pred = model.predict(X_test)
-    y_pred = np.maximum(y_pred, 0)
-    y_pred = np.exp(y_pred)
+    y_pred = np.maximum(y_pred, 1e-20)
     y_pred = np.minimum(755000, y_pred)
-    score = rmsle(y_test, y_pred)
+    score = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
     scores.append(score)
+    print(dict(zip(X_train.columns, model.feature_importances_)))
+    print(X_train.columns[np.argpartition(model.feature_importances_, -4)[-4:]])
+    print(model.feature_importances_[np.argpartition(model.feature_importances_, -4)[-4:]])
 
     # print(model.feature_importances_)
 
