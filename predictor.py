@@ -1,3 +1,6 @@
+#Has to be cleaned up: duplicate code!
+#Makes predictions using gbr. Other models are in comments.
+
 import pandas as pd
 # import xgboost
 import numpy as np
@@ -5,16 +8,19 @@ from sklearn.tree import DecisionTreeRegressor as DTR
 from sklearn.neighbors import KNeighborsRegressor as KNR
 from sklearn import svm, linear_model, ensemble, pipeline, decomposition, calibration, metrics, isotonic, preprocessing, naive_bayes, grid_search, model_selection
 #%%
-def preprocess():
-
-    df = pd.read_csv('train.csv')
+def preprocess(train=True):
+    if train:
+        df = pd.read_csv('train.csv')
+        y = df['SalePrice']
+    else:
+        df = pd.read_csv('test.csv')
+        y=None
     date = pd.to_datetime({'year': df['YrSold'], 'month': df['MoSold'], 'day': 1}).values.astype(int)
     df = df.assign(date=date).drop(['YrSold', 'Id', 'MiscVal', '3SsnPorch', 'LowQualFinSF', 'Utilities'], 1)
     df = df.drop(['EnclosedPorch', 'BsmtExposure', 'MasVnrArea', 'OpenPorchSF', 'LotShape', 'BsmtFinSF2', 'PoolArea'], 1)
     X = df[[c for c in df.columns if c != 'SalePrice']]
     X_float = X.select_dtypes(exclude=['object']).fillna(0)
     X_float.fillna('None', inplace=True)
-    y = df['SalePrice']
 
     X_cat = pd.concat((X.select_dtypes(include=['object']).fillna('None'), y), axis=1)
     X = X_float
@@ -103,10 +109,57 @@ def train_some_model(X, X_cat, y, model='linear', params=None):
         k += 1
     scores = [ada_scores, ridge_scores, gbr_scores, linear_scores, knn_scores]    
     return scores, k
+
+def train_test(X_train, X_cat_train, y, model='linear', params=None):
+    gbr_scores = []
+    X_test, X_cat_test, _ = preprocess(False)
+
+    sale_price_mean = X_cat['SalePrice'].mean()
+    
+    for c in X_cat.columns:
+        if c == 'SalePrice':
+            continue
+        hood_price = X_cat_train.groupby(c)['SalePrice'].mean().reset_index()
+        hood_price.columns = [c, c + '_mean_price']
+        merged_train = X_cat_train.reset_index().merge(hood_price,  how='left', on=[c]).set_index('index')[c + '_mean_price']
+        X_train = pd.concat((X_train, merged_train), axis=1)
+        merged_test = X_cat_test.reset_index().merge(hood_price, how='left',  on=[c]).set_index('index')[c + '_mean_price'].fillna(sale_price_mean)
+        X_test = pd.concat((X_test, merged_test), axis=1)
+
+    y = np.log(y)
+        
+    split = (X_train, y, X_test)
+        
+    #dtr = DTR(criterion='mse', max_depth=None)
+    #ada = ensemble.AdaBoostRegressor(base_estimator=dtr, n_estimators=100, learning_rate=1.0, loss='exponential')
+    #score = get_score(ada, split)
+    #ada_scores.append(score)
+        
+    #ridge = linear_model.Ridge(250)
+    #score = get_score(ridge, split)
+    #ridge_scores.append(score)
+        
+    gbr = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=5)
+    X_train = split[0] 
+    y_train = split[1] 
+    X_test = split[2]
+
+    
+    gbr.fit(X_train, y_train)
+    y_pred = gbr.predict(X_test)
+    y_pred = np.maximum(y_pred, 1e-20)
+    y_pred = np.minimum(755000, y_pred)
+    y_pred=np.exp(y_pred)
+        
+    #linear = linear_model.LinearRegression()
+    #score = get_score(linear, split)
+    #linear_scores.append(score)
+ 
+    return y_pred
+
 #%%
-scores, k = train_some_model(X, X_cat, y)
-print('ada', np.mean(scores[0]))
-print('ridge', np.mean(scores[1]))
-print('gbr', np.mean(scores[2]))
-print('linear', np.mean(scores[3]))
-#print('knn', np.mean(scores[4]))
+
+predictions=train_test(X,X_cat,y)
+pd.DataFrame({'Id': range(1461, 2920), 'SalePrice': predictions}).to_csv("Predictions_of_test.csv", index=False, header=True)
+print(pd.DataFrame([predictions]))
+
